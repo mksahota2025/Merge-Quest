@@ -56,4 +56,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-Have questions or suggestions? Open an issue in the respective puzzle repository or contact us at [contact@mergequest.org](mailto:contact@mergequest.org). 
+Have questions or suggestions? 
+- Open an issue in the respective puzzle repository
+- Email us at [contact@mergequest.org](mailto:contact@mergequest.org)
+- Contact the maintainer at [manpreet@coderabbit.ai](mailto:manpreet@coderabbit.ai) 
