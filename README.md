@@ -58,5 +58,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Have questions or suggestions? 
 - Open an issue in the respective puzzle repository
-- Email us at [contact@mergequest.org](mailto:contact@mergequest.org)
+- Email us at [support@coderabbit.ai](mailto:support@coderabbit.ai)
 - Contact the maintainer at [manpreet@coderabbit.ai](mailto:manpreet@coderabbit.ai) 
