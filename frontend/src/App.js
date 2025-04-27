@@ -87,25 +87,23 @@ function App() {
             <p className="text-xl">Session Started!</p>
             <p className="mt-2">Session ID: <strong>{sessionId}</strong></p>
             <p>Assigned Room: <strong>{assignedRoom}</strong></p>
-          </div>
-        )}
-
-        {sessionId && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-2">Submit your PR URL</h2>
-            <input
-              type="text"
-              placeholder="Paste PR URL here"
-              className="border p-2 w-full mb-4 rounded"
-              value={repoUrl}
-              onChange={e => setRepoUrl(e.target.value)}
-            />
-            <button
-              onClick={submitSolution}
-              className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-full"
-            >
-              Submit Solution
-            </button>
+            
+            <div className="mt-6">
+              <h2 className="text-xl font-bold mb-2">Submit Your Solution</h2>
+              <input
+                type="text"
+                placeholder="GitHub PR URL"
+                className="border p-2 w-full mb-4 rounded"
+                value={repoUrl}
+                onChange={e => setRepoUrl(e.target.value)}
+              />
+              <button
+                onClick={submitSolution}
+                className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded w-full"
+              >
+                Submit PR
+              </button>
+            </div>
           </div>
         )}
 

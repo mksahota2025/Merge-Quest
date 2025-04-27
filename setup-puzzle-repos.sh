@@ -6,7 +6,7 @@ echo "Press Enter when done..."
 read
 
 # Create repositories
-repos=("branch-maze" "dependency-jenga" "security-sieve" "vibe-boss")
+repos=("branch-maze" "dependency-jenga")
 
 for repo in "${repos[@]}"; do
     echo "Creating $repo..."
@@ -38,16 +38,6 @@ $(case $repo in
         echo "1. Fix dependency conflicts"
         echo "2. Update package versions"
         echo "3. Resolve circular dependencies"
-        ;;
-    "security-sieve")
-        echo "1. Fix security vulnerabilities"
-        echo "2. Update deprecated APIs"
-        echo "3. Implement proper authentication"
-        ;;
-    "vibe-boss")
-        echo "1. Fix code style issues"
-        echo "2. Improve documentation"
-        echo "3. Add proper error handling"
         ;;
 esac)
 
