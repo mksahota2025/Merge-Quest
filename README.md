@@ -1,54 +1,59 @@
-# Welcome to Dependency Jenga 🧩
+# Merge Quest 🎮
 
-Your app runs... for now. But it's riddled with security vulnerabilities!
+Welcome to Merge Quest, a collection of challenging puzzles designed to test and improve your software development skills!
 
-## The Challenge
-This puzzle tests your ability to identify and fix security vulnerabilities in a Node.js application. The app uses outdated dependencies and contains several security flaws that need to be addressed.
+## Available Puzzles
 
-## Vulnerabilities to Find and Fix
+### 1. Vulnerability Hunt 🛡️
+A security-focused challenge where you identify and fix various security vulnerabilities in a Node.js application.
+- Find and fix security flaws
+- Learn about common vulnerabilities
+- Practice secure coding
+[Play Vulnerability Hunt](https://github.com/merge-quest-org/vulnerability-hunt)
 
-### Dependency Issues
-- Express.js 4.10.0 (outdated with known vulnerabilities)
-- Lodash 3.10.1 (outdated with known vulnerabilities)
+### 2. Branch Maze 🌳
+Navigate through complex branching scenarios and master Git workflows.
+- Handle merge conflicts
+- Manage feature branches
+- Practice rebasing
+[Play Branch Maze](https://github.com/merge-quest-org/branch-maze)
 
-### Security Vulnerabilities
-1. **Prototype Pollution** (`/prototype-pollution`)
-   - Lodash merge vulnerability
-   - Allows modification of object prototypes
+### 3. Dependency Jenga 🧩
+Master the art of managing complex dependency relationships.
+- Update outdated dependencies
+- Resolve version conflicts
+- Maintain compatibility
+[Play Dependency Jenga](https://github.com/merge-quest-org/dependency-jenga)
 
-2. **Cross-Site Scripting (XSS)** (`/xss`)
-   - Unsanitized user input
-   - Express 4.10.0 doesn't escape by default
+### 4. Vibe Boss 👥
+Enhance your team collaboration and code review skills.
+- Practice code reviews
+- Improve communication
+- Master pull requests
+[Play Vibe Boss](https://github.com/merge-quest-org/vibe-boss)
 
-3. **Path Traversal** (`/file`)
-   - Unrestricted file access
-   - Potential directory traversal attacks
+## Getting Started
 
-4. **Command Injection** (`/ping`)
-   - Unsanitized command execution
-   - Allows arbitrary command injection
+1. Choose a puzzle that interests you
+2. Clone its repository
+3. Follow the specific instructions in the puzzle's README
+4. Solve the challenges
+5. Submit your solutions via pull requests
 
-5. **Authentication Issues** (`/login`)
-   - Weak MD5 password hashing
-   - SQL Injection vulnerability
-   - String concatenation in queries
+## Contributing
 
-6. **Broken Access Control** (`/profile`)
-   - No authorization checks
-   - Horizontal privilege escalation
-   - Sensitive data exposure
+We welcome contributions to Merge Quest! If you'd like to:
+- Add new puzzles
+- Improve existing ones
+- Fix issues
+- Suggest enhancements
 
-## Escape Goals:
-- Identify all outdated or vulnerable dependencies
-- Update them safely to their latest secure versions
-- Fix all security vulnerabilities in the code
-- Submit a clean PR to main
+Please check out our [Contributing Guidelines](CONTRIBUTING.md).
 
-## How to Play
-1. Clone this repository
-2. Install dependencies: `npm install`
-3. Start the server: `node server.js`
-4. Identify and fix all vulnerabilities
-5. Submit your solution as a PR
+## License
 
-Good luck! May your dependencies be secure and your code be clean! 🚀 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+Have questions or suggestions? Open an issue in the respective puzzle repository or contact us at [contact@mergequest.org](mailto:contact@mergequest.org). 
