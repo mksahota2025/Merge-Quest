@@ -9,6 +9,7 @@ A security-focused challenge where you identify and fix various security vulnera
 - Find and fix security flaws
 - Learn about common vulnerabilities
 - Practice secure coding
+- Test your security knowledge
 [Play Vulnerability Hunt](https://github.com/merge-quest-org/vulnerability-hunt)
 
 ### 2. Branch Maze 🌳
@@ -16,6 +17,7 @@ Navigate through complex branching scenarios and master Git workflows.
 - Handle merge conflicts
 - Manage feature branches
 - Practice rebasing
+- Learn Git best practices
 [Play Branch Maze](https://github.com/merge-quest-org/branch-maze)
 
 ### 3. Dependency Jenga 🧩
@@ -23,6 +25,7 @@ Master the art of managing complex dependency relationships.
 - Update outdated dependencies
 - Resolve version conflicts
 - Maintain compatibility
+- Learn dependency management
 [Play Dependency Jenga](https://github.com/merge-quest-org/dependency-jenga)
 
 ### 4. Vibe Boss 👥
@@ -30,6 +33,7 @@ Enhance your team collaboration and code review skills.
 - Practice code reviews
 - Improve communication
 - Master pull requests
+- Learn team collaboration
 [Play Vibe Boss](https://github.com/merge-quest-org/vibe-boss)
 
 ## Getting Started
@@ -39,6 +43,16 @@ Enhance your team collaboration and code review skills.
 3. Follow the specific instructions in the puzzle's README
 4. Solve the challenges
 5. Submit your solutions via pull requests
+
+## Puzzle Features
+
+Each puzzle includes:
+- Clear objectives and rules
+- Scoring system
+- Detailed instructions
+- Testing guidelines
+- Solution submission process
+- Helpful resources
 
 ## Contributing
 
