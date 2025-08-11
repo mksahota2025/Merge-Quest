@@ -1,30 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
 
-// PostgreSQL connection pool
-const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'mergequest',
-  password: process.env.DB_PASSWORD || 'postgres',
-  port: process.env.DB_PORT || 5432,
-});
-
-// Test database connection
-pool.connect((err, client, release) => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-    } else {
-        console.log('Successfully connected to PostgreSQL database');
-        release();
-    }
-});
+// In-memory storage
+const sessions = new Map();
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -32,64 +15,122 @@ app.use(bodyParser.json());
 // Rooms configuration
 const rooms = ['branch-maze', 'dependency-jenga', 'security-sieve', 'vibe-boss'];
 
+// Sample vulnerabilities data for each room
+const roomVulnerabilities = {
+  'vibe-boss': [
+    {
+      id: 1,
+      title: 'Insecure API Key Storage',
+      description: 'API keys are hardcoded in the source code',
+      points: 50
+    },
+    {
+      id: 2,
+      title: 'Missing Input Validation',
+      description: 'User input is not properly sanitized',
+      points: 30
+    }
+  ],
+  'branch-maze': [
+    {
+      id: 1,
+      title: 'Merge Conflict Resolution',
+      description: 'Improper handling of merge conflicts',
+      points: 40
+    }
+  ],
+  'dependency-jenga': [
+    {
+      id: 1,
+      title: 'Outdated Dependencies',
+      description: 'Multiple packages have known vulnerabilities',
+      points: 60
+    }
+  ],
+  'security-sieve': [
+    {
+      id: 1,
+      title: 'SQL Injection',
+      description: 'Database queries are vulnerable to injection',
+      points: 70
+    }
+  ]
+};
+
+// GET /vulnerabilities
+app.get('/vulnerabilities', (req, res) => {
+  const { room } = req.query;
+  const sessionId = req.headers.authorization?.split(' ')[1];
+
+  if (!sessionId || !sessions.has(sessionId)) {
+    return res.status(401).json({ error: 'Invalid or missing session' });
+  }
+
+  if (!room || !rooms.includes(room)) {
+    return res.status(400).json({ error: 'Invalid room specified' });
+  }
+
+  const vulnerabilities = roomVulnerabilities[room] || [];
+  res.json(vulnerabilities);
+});
+
 // POST /start-session
 app.post('/start-session', async (req, res) => {
     const { teamName, emails } = req.body;
     const assignedRoom = rooms[Math.floor(Math.random() * rooms.length)];
     const sessionId = Math.random().toString(36).substr(2, 9);
 
-    try {
-        await pool.query(
-            'INSERT INTO sessions (session_id, team_name, emails, assigned_room, status) VALUES ($1, $2, $3, $4, $5)',
-            [sessionId, teamName, emails.join(','), assignedRoom, 'started']
-        );
-        res.json({ sessionId, assignedRoom });
-    } catch (error) {
-        console.error('Database error:', error);
-        res.status(500).json({ error: 'Database error.' });
-    }
+    sessions.set(sessionId, {
+        teamName,
+        emails,
+        assignedRoom,
+        status: 'started'
+    });
+
+    res.json({ sessionId, assignedRoom });
 });
 
-// GET /get-room?sessionId=XXX
-app.get('/get-room', async (req, res) => {
-    const { sessionId } = req.query;
-    
-    try {
-        const result = await pool.query(
-            'SELECT assigned_room FROM sessions WHERE session_id = $1',
-            [sessionId]
-        );
-        
-        if (result.rows.length > 0) {
-            res.json({ assignedRoom: result.rows[0].assigned_room });
-        } else {
-            res.status(404).json({ error: 'Session not found' });
-        }
-    } catch (error) {
-        console.error('Database error:', error);
-        res.status(500).json({ error: 'Database error.' });
-    }
-});
+app.get('/', (req, res) => {
+    res.json({
+      status: 'OK',
+      message: 'API is running on port ' + (process.env.PORT || 5001)
+    });
+  });
 
 // POST /submit-solution
 app.post('/submit-solution', async (req, res) => {
     const { sessionId, repoUrl } = req.body;
-    try {
-        const result = await pool.query(
-            'UPDATE sessions SET status = $1, repo_url = $2 WHERE session_id = $3',
-            ['completed', repoUrl, sessionId]
-        );
-        if (result.rowCount > 0) {
-            res.json({ message: 'Solution submitted! Badge coming soon.' });
-        } else {
-            res.status(404).json({ error: 'Session not found' });
-        }
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Database error.' });
+    const session = sessions.get(sessionId);
+    
+    if (session) {
+        session.status = 'completed';
+        session.repoUrl = repoUrl;
+        res.json({ message: 'Solution submitted! Badge coming soon.' });
+    } else {
+        res.status(404).json({ error: 'Session not found' });
     }
 });
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+// POST /submit-fix
+app.post('/submit-fix', (req, res) => {
+    const { vulnerabilityId, fix, room } = req.body;
+    const sessionId = req.headers.authorization?.split(' ')[1];
+
+    if (!sessionId || !sessions.has(sessionId)) {
+        return res.status(401).json({ error: 'Invalid or missing session' });
+    }
+
+    if (!vulnerabilityId || !fix || !room) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // In a real application, you would validate the fix here
+    // For now, we'll just return a success message
+    res.json({
+        success: true,
+        message: 'Fix submitted successfully',
+        points: roomVulnerabilities[room]?.find(v => v.id === vulnerabilityId)?.points || 0
+    });
 });
+
+app.listen(PORT, () => console.log(`Server listening on ${PORT}`));

@@ -1,8 +1,16 @@
-# Welcome to Branch Maze 🧩
+# 🧩 Merge Quest: Branch Maze
 
-Your repo is in chaos. Can you fix the branching?
+Welcome to **Branch Maze**, your codebase is a disaster of bad branching decisions.
 
-## Escape Goals:
-- Clean up unnecessary branches
-- Fix any merge conflicts
-- Submit a clean PR to main
+## 💣 Your Escape Goals:
+1. Find and remove unnecessary branches (there are MANY).
+2. Identify and resolve merge conflicts.
+3. Submit a single clean PR to `main` that:
+   - Contains only the correct fix
+   - Removes debug/temp files
+   - Has no broken branches attached
+
+🕓 Time Limit: 30 minutes
+
+Good luck — the merge gate awaits.
+
