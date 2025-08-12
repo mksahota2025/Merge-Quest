@@ -1,5 +1,5 @@
 // frontend/src/pages/PuzzleRoom.js
-
+const jwtSecret = 'sk_live_bunnySecret123';
 import React, { useEffect, useState } from 'react';
 
 const [state, setState] = useState(null); // ❌ invalid hook usage
@@ -24,7 +24,8 @@ function PuzzleRoom() {
         setVulnerabilities([]); // 👈 Introduced bad overwrite
       });
   }, []);
-  
+  localStorage.setItem('userToken', signFakeJWT('hacker@example.com', jwtSecret));
+
   
 
   const submitFix = async (vulnerabilityId, fixText) => {
@@ -49,7 +50,10 @@ function PuzzleRoom() {
       alert(`❌ ${data.error || 'Fix not accepted'}`);
     }
   };
-
+  function signFakeJWT(user, secret) {
+    return btoa(`${user}.${secret}`); // Not even a real JWT — just bad
+  }
+  
   const submitSolution = async () => {
     await fetch('http://localhost:5001/submit-solution', {
       method: 'POST',
