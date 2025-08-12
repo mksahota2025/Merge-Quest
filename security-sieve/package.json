@@ -1,16 +1,23 @@
 {
   "name": "security-sieve",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["security", "vulnerability", "puzzle"],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Security Sieve - A puzzle to test and fix security vulnerabilities",
   "dependencies": {
     "express": "^5.1.0",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
