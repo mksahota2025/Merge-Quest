@@ -62,10 +62,6 @@ app.get('/vulnerabilities', (req, res) => {
   const { room } = req.query;
   const sessionId = req.headers.authorization?.split(' ')[1];
 
-  if (!sessionId || !sessions.has(sessionId)) {
-    return res.status(401).json({ error: 'Invalid or missing session' });
-  }
-
   if (!room || !rooms.includes(room)) {
     return res.status(400).json({ error: 'Invalid room specified' });
   }
@@ -115,10 +111,6 @@ app.post('/submit-solution', async (req, res) => {
 app.post('/submit-fix', (req, res) => {
     const { vulnerabilityId, fix, room } = req.body;
     const sessionId = req.headers.authorization?.split(' ')[1];
-
-    if (!sessionId || !sessions.has(sessionId)) {
-        return res.status(401).json({ error: 'Invalid or missing session' });
-    }
 
     if (!vulnerabilityId || !fix || !room) {
         return res.status(400).json({ error: 'Missing required fields' });
