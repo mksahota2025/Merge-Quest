@@ -142,6 +142,15 @@ app.post('/pollute', (req, res) => {
   res.send({ message: 'Merged config', config });
 });
 
+app.get('/leaky-task', (req, res) => {
+  // ❌ Every call starts a new background task without clearing it
+  setInterval(() => {
+    console.log('🕳️ Memory leak: running background interval...');
+  }, 2000);
+
+  res.send('Leaky task started — but never cleared!');
+});
+
 app.get('/check', (req, res) => {
   if ({}.polluted === true) {
     return res.send('🔥 System compromised by prototype pollution!');
