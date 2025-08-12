@@ -102,6 +102,17 @@ app.post('/submit-solution', (req, res) => {
   res.json({ message: 'Solution submitted! Badge coming soon.' });
 });
 
+// Simulated async bug: unhandled promise rejection
+app.get('/simulate-error', (req, res) => {
+  fakeAsyncDanger(); // ❌ no await, no .catch()
+  res.send('Background task launched');
+});
+
+async function fakeAsyncDanger() {
+  throw new Error('💥 Background async failure (unhandled)');
+}
+
+
 // Simulated SQL injection vulnerability
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
