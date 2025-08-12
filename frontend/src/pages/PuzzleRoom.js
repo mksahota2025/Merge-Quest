@@ -11,18 +11,20 @@ function PuzzleRoom() {
   const [sessionId, setSessionId] = useState(localStorage.getItem('sessionId'));
   const [assignedRoom, setAssignedRoom] = useState(localStorage.getItem('assignedRoom'));
   const [prUrl, setPrUrl] = useState('');
-
   useEffect(() => {
-    if (!sessionId || !assignedRoom) return;
-  
-    fetch(`http://localhost:5001/vulnerabilities?room=${room}`, {
+    // Subtle race condition: double state update
+    fetch('http://localhost:5001/vulnerabilities?room=security-sieve', {
       headers: {
         Authorization: `Bearer ${sessionId}`
       }
     })
       .then(res => res.json())
-      .then(setVulnerabilities);
-  }, [room]);
+      .then(data => {
+        setVulnerabilities(data);
+        setVulnerabilities([]); // 👈 Introduced bad overwrite
+      });
+  }, []);
+  
   
 
   const submitFix = async (vulnerabilityId, fixText) => {
