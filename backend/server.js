@@ -62,10 +62,6 @@ app.get('/vulnerabilities', (req, res) => {
   const { room } = req.query;
   const sessionId = req.headers.authorization?.split(' ')[1];
 
-  if (!sessionId || !sessions.has(sessionId)) {
-    return res.status(401).json({ error: 'Invalid or missing session' });
-  }
-
   if (!room || !rooms.includes(room)) {
     return res.status(400).json({ error: 'Invalid room specified' });
   }
@@ -75,19 +71,20 @@ app.get('/vulnerabilities', (req, res) => {
 });
 
 // POST /start-session
-app.post('/start-session', async (req, res) => {
-    const { teamName, emails } = req.body;
-    const assignedRoom = rooms[Math.floor(Math.random() * rooms.length)];
-    const sessionId = Math.random().toString(36).substr(2, 9);
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
 
-    sessions.set(sessionId, {
-        teamName,
-        emails,
-        assignedRoom,
-        status: 'started'
-    });
+  // ❌ INSECURE: direct user input in query string
+  const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
 
-    res.json({ sessionId, assignedRoom });
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).send('Database error');
+    if (results.length > 0) {
+      res.send('✅ Logged in');
+    } else {
+      res.status(401).send('❌ Invalid credentials');
+    }
+  });
 });
 
 app.get('/', (req, res) => {
@@ -115,10 +112,6 @@ app.post('/submit-solution', async (req, res) => {
 app.post('/submit-fix', (req, res) => {
     const { vulnerabilityId, fix, room } = req.body;
     const sessionId = req.headers.authorization?.split(' ')[1];
-
-    if (!sessionId || !sessions.has(sessionId)) {
-        return res.status(401).json({ error: 'Invalid or missing session' });
-    }
 
     if (!vulnerabilityId || !fix || !room) {
         return res.status(400).json({ error: 'Missing required fields' });
