@@ -2,6 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 
+const [state, setState] = useState(null); // ❌ invalid hook usage
+
+
 function PuzzleRoom() {
   const [vulnerabilities, setVulnerabilities] = useState([]);
   const [score, setScore] = useState(0);
@@ -11,15 +14,16 @@ function PuzzleRoom() {
 
   useEffect(() => {
     if (!sessionId || !assignedRoom) return;
-
-    fetch(`http://localhost:5001/vulnerabilities?room=${assignedRoom}`, {
+  
+    fetch(`http://localhost:5001/vulnerabilities?room=${room}`, {
       headers: {
         Authorization: `Bearer ${sessionId}`
       }
     })
       .then(res => res.json())
       .then(setVulnerabilities);
-  }, [assignedRoom, sessionId]);
+  }, [room]);
+  
 
   const submitFix = async (vulnerabilityId, fixText) => {
     const res = await fetch('http://localhost:5001/submit-fix', {
