@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const app = express();
@@ -24,13 +25,40 @@ const db = {
     } else {
       // New style: query(query, params, callback) - parameterized
       console.log('[SIMULATED QUERY]:', query, 'with params:', params);
+
+      const expectedUsername = process.env.ADMIN_USERNAME || 'admin';
+      const expectedPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
       // Simulate parameterized query - safely check credentials
       // In a real DB, this would use prepared statements
+
+      // Handle username-only lookup (secure approach with bcrypt)
+      if (params && params.length === 1) {
+        const [username] = params;
+
+        // Simulated user lookup by username only
+        if (username === expectedUsername) {
+          // Return user with hashed password (simulated - in real app, fetch from DB)
+          // Hash generated with: bcrypt.hash('admin123', 10)
+          return callback(null, [{
+            id: 1,
+            username: expectedUsername,
+            hashed_password: '$2b$10$yxvz/8v5qUXkNzK66QkboOjXsnuUeAovWLTNtGszaYuOUwvRIUAq6'
+          }]);
+        }
+        return callback(null, []);
+      }
+
+      // Handle old username+password lookup (legacy - deprecated)
+      // TODO: SIMULATION ONLY - DO NOT SHIP TO PRODUCTION
+      // In production, use hashed passwords (bcrypt/argon2) and a real database
+      // Never store or compare plaintext passwords
       if (params && params.length >= 2) {
         const [username, password] = params;
-        // Simulated user lookup - in real app, would hash password and compare
-        if (username === 'admin' && password === 'admin123') {
-          return callback(null, [{ id: 1, username: 'admin' }]);
+
+        // Simulated user lookup - compare against environment variables (INSECURE)
+        if (username === expectedUsername && password === expectedPassword) {
+          return callback(null, [{ id: 1, username: expectedUsername }]);
         }
       }
       return callback(null, []);
@@ -235,8 +263,8 @@ async function fakeAsyncDanger() {
 }
 
 
-// Secure login endpoint with parameterized queries
-app.post('/login', (req, res) => {
+// Secure login endpoint with bcrypt password verification
+app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   // Validate input
@@ -244,19 +272,42 @@ app.post('/login', (req, res) => {
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
-  // Log login attempts only in development (avoid PII in production logs)
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[DEBUG] Login attempt: username=${username}`);
-  }
+  // Log authentication attempts without PII
+  console.log('[AUTH] Login attempt received');
 
-  // Use parameterized query to prevent SQL injection
-  const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
-  const params = [username, password];
-  
-  db.query(query, params, (err, results) => {
-    if (err) return res.status(500).send('DB error');
-    if (results.length > 0) return res.send('✅ Logged in');
-    res.status(401).send('❌ Invalid credentials');
+  // Query user by username only (never include password in query)
+  const query = 'SELECT * FROM users WHERE username = ?';
+  const params = [username];
+
+  db.query(query, params, async (err, results) => {
+    if (err) {
+      console.error('[AUTH] Database error during login');
+      return res.status(500).send('DB error');
+    }
+
+    // User not found
+    if (results.length === 0) {
+      console.log('[AUTH] Login failed - user not found');
+      return res.status(401).send('❌ Invalid credentials');
+    }
+
+    const user = results[0];
+
+    // Verify password using bcrypt (secure hash comparison)
+    try {
+      const passwordMatch = await bcrypt.compare(password, user.hashed_password);
+
+      if (passwordMatch) {
+        console.log('[AUTH] Login successful');
+        return res.send('✅ Logged in');
+      } else {
+        console.log('[AUTH] Login failed - invalid password');
+        return res.status(401).send('❌ Invalid credentials');
+      }
+    } catch (bcryptError) {
+      console.error('[AUTH] Password verification error');
+      return res.status(500).send('Authentication error');
+    }
   });
 });
 
