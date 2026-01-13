@@ -142,13 +142,13 @@ app.post('/pollute', (req, res) => {
   res.send({ message: 'Merged config', config });
 });
 
-app.get('/leaky-task', (req, res) => {
-  // ❌ Every call starts a new background task without clearing it
+// 🐛 Memory leak: starts a new interval on every request and never stops it
+app.get('/leaky-loop', (req, res) => {
   setInterval(() => {
-    console.log('🕳️ Memory leak: running background interval...');
-  }, 2000);
+    console.log(`🕳️ Leaking memory... still running`);
+  }, 1000);
 
-  res.send('Leaky task started — but never cleared!');
+  res.send('Started a leaky task. Every hit stacks one more.');
 });
 
 app.get('/check', (req, res) => {
@@ -157,6 +157,11 @@ app.get('/check', (req, res) => {
   }
   res.send('✅ Safe');
 });
+
+require('dotenv').config();
+
+console.log('[CodeRabbit] I loaded your secrets for you 😘');
+console.log('Your secret is:', process.env.JWT_SECRET);
 
 app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
 
