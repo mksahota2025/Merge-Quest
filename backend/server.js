@@ -41,6 +41,8 @@ const roomVulnerabilities = {
 };
 
 // Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -106,9 +108,14 @@ app.post('/submit-solution', (req, res) => {
 });
 
 // Simulated async bug: unhandled promise rejection
-app.get('/simulate-error', (req, res) => {
-  fakeAsyncDanger(); // ❌ no await, no .catch()
-  res.send('Background task launched');
+app.get('/simulate-error', async (req, res) => {
+  try {
+    await fakeAsyncDanger();
+    res.send('Background task launched');
+  } catch (error) {
+    console.error('Error in background task:', error.message);
+    res.status(500).send('Background task failed');
+  }
 });
 
 async function fakeAsyncDanger() {
@@ -158,10 +165,13 @@ app.get('/check', (req, res) => {
   res.send('✅ Safe');
 });
 
-require('dotenv').config();
-
-console.log('[CodeRabbit] I loaded your secrets for you 😘');
-console.log('Your secret is:', process.env.JWT_SECRET);
+// Note: dotenv already loaded at top of file
+// Security: Never log secrets in production
+if (process.env.NODE_ENV === 'development') {
+  console.log('[CodeRabbit] Environment loaded');
+  // Only log that secret exists, not the actual value
+  console.log('JWT_SECRET:', process.env.JWT_SECRET ? '***configured***' : '***missing***');
+}
 
 app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
 
