@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
@@ -44,9 +45,9 @@ const roomVulnerabilities = {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors({
-  origin: '*',
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: process.env.ALLOWED_ORIGINS ? true : false
 }));
 
 // Health check
@@ -57,12 +58,35 @@ app.get('/', (req, res) => {
 // Start session
 app.post('/start-session', (req, res) => {
   const { teamName, emails } = req.body;
+
+  // Validate inputs
+  if (!teamName || typeof teamName !== 'string' || teamName.trim().length === 0) {
+    return res.status(400).json({ error: 'teamName must be a non-empty string' });
+  }
+
+  if (!Array.isArray(emails) || emails.length === 0) {
+    return res.status(400).json({ error: 'emails must be a non-empty array' });
+  }
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  for (const email of emails) {
+    if (typeof email !== 'string' || !emailRegex.test(email.trim())) {
+      return res.status(400).json({ error: 'All emails must be valid email addresses' });
+    }
+  }
+
+  // Sanitize inputs
+  const sanitizedTeamName = teamName.trim();
+  const sanitizedEmails = emails.map(email => email.trim());
+
+  // Generate cryptographically secure session ID
+  const sessionId = crypto.randomUUID();
   const assignedRoom = rooms[Math.floor(Math.random() * rooms.length)];
-  const sessionId = Math.random().toString(36).substring(2, 12);
 
   sessions.set(sessionId, {
-    teamName,
-    emails,
+    teamName: sanitizedTeamName,
+    emails: sanitizedEmails,
     assignedRoom,
     status: 'started'
   });
@@ -97,12 +121,24 @@ app.post('/submit-fix', (req, res) => {
 // Submit PR solution
 app.post('/submit-solution', (req, res) => {
   const { sessionId, repoUrl } = req.body;
+
+  if (!repoUrl || typeof repoUrl !== 'string' || repoUrl.trim().length === 0) {
+    return res.status(400).json({ error: 'Valid repoUrl is required' });
+  }
+
+  // Basic URL validation
+  try {
+    new URL(repoUrl);
+  } catch (error) {
+    return res.status(400).json({ error: 'repoUrl must be a valid URL' });
+  }
+
   const session = sessions.get(sessionId);
 
   if (!session) return res.status(404).json({ error: 'Session not found' });
 
   session.status = 'completed';
-  session.repoUrl = repoUrl;
+  session.repoUrl = repoUrl.trim();
 
   res.json({ message: 'Solution submitted! Badge coming soon.' });
 });
@@ -127,8 +163,10 @@ async function fakeAsyncDanger() {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  // ❌ SENSITIVE DATA LEAK
-  console.log(`[DEBUG] Login attempt: username=${username}, password=${password}`);
+  // Log only username for debugging (password removed for security)
+  if (username) {
+    console.log(`[DEBUG] Login attempt: username=${username}`);
+  }
 
   const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
   db.query(query, (err, results) => {
