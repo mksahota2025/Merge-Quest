@@ -163,11 +163,33 @@ app.post('/submit-fix', (req, res) => {
   const { vulnerabilityId, fix, room } = req.body;
   const sessionId = req.headers.authorization?.split(' ')[1];
 
+  // Validate session ID exists in Authorization header
+  if (!sessionId) {
+    return res.status(401).json({ error: 'Unauthorized: No session ID provided' });
+  }
+
+  // Validate session exists in sessions Map
+  const session = sessions.get(sessionId);
+  if (!session) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid or expired session' });
+  }
+
+  // Validate required fields
   if (!vulnerabilityId || !fix || !room) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // Simulated response
+  // Validate room is valid
+  if (!rooms.includes(room)) {
+    return res.status(400).json({ error: 'Invalid room specified' });
+  }
+
+  // Optional: Enforce that user can only submit fixes for their assigned room
+  if (session.assignedRoom !== room) {
+    return res.status(403).json({ error: 'Forbidden: You can only submit fixes for your assigned room' });
+  }
+
+  // Calculate points for the vulnerability
   const points = roomVulnerabilities[room]?.find(v => v.id === vulnerabilityId)?.points || 0;
   res.json({ success: true, message: 'Fix submitted successfully', points });
 });
@@ -197,7 +219,7 @@ app.post('/submit-solution', (req, res) => {
   res.json({ message: 'Solution submitted! Badge coming soon.' });
 });
 
-// Simulated async bug: unhandled promise rejection
+// Demonstrates proper async error handling with try/catch
 app.get('/simulate-error', async (req, res) => {
   try {
     await fakeAsyncDanger();
@@ -209,7 +231,7 @@ app.get('/simulate-error', async (req, res) => {
 });
 
 async function fakeAsyncDanger() {
-  throw new Error('💥 Background async failure (unhandled)');
+  throw new Error('💥 Background async failure (properly handled)');
 }
 
 
@@ -222,8 +244,8 @@ app.post('/login', (req, res) => {
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
-  // Log only username for debugging (password removed for security)
-  if (username) {
+  // Log login attempts only in development (avoid PII in production logs)
+  if (process.env.NODE_ENV === 'development') {
     console.log(`[DEBUG] Login attempt: username=${username}`);
   }
 
