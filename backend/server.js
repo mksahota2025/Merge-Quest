@@ -110,8 +110,8 @@ app.use(cors({
         callback(new Error('Not allowed by CORS'));
       }
     } else {
-      // If no whitelist configured, allow all origins but without credentials
-      callback(null, true);
+      // If no whitelist configured, block all cross-origin requests
+      callback(new Error('CORS not configured: set ALLOWED_ORIGINS to permit cross-origin requests'));
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -347,4 +347,3 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
-
